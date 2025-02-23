@@ -23,4 +23,5 @@ public class User {
     private String gender;
     private String biography;
     private String profilePicture;
+    private Boolean active;
 }
