@@ -14,14 +14,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String username;
-    private String password;
     @Column(unique = true)
+    private String username;
+    @Column(nullable = false)
+    private String password;
+    @Column(unique = true, nullable = false)
     private String email;
     private String fullName;
     private LocalDate birthDate;
     private String gender;
     private String biography;
     private String profilePicture;
-    private Boolean active;
 }

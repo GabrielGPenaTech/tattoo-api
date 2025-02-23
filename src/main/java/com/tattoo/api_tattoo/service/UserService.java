@@ -1,18 +1,16 @@
 package com.tattoo.api_tattoo.service;
 
+import com.tattoo.api_tattoo.controller.dto.UserDTO;
 import com.tattoo.api_tattoo.domain.model.User;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface UserService {
 
-    User save(User user);
-    User findByEmail(String email);
-    User update(User user);
+    User save(UserDTO userDTO);
+    User findById(String id);
+    User update(String id, User user);
     List<User> findAll();
-    Boolean existsByEmail(String email);
-    void deleteByEmail(String email);
+    void delete(String id);
 
 }
