@@ -2,8 +2,8 @@ spring:
   application:
     name: "api-tattoo"
   datasource:
-    url: jdbc:h2:mem:sdw2025
-    username: sdw2025
+    url: jdbc:h2:mem:tattoo
+    username: tattooADM
     password:
   jpa:
     show-sql: true
