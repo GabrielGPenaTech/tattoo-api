@@ -7,6 +7,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -19,7 +20,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF caso necessário
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html")
+                        .permitAll()
                         .anyRequest().authenticated() // Permite todas as requisições
+                ).headers(headers -> headers // Configurações de cabeçalhos
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin) // Permite iframes da mesma origem
                 ).httpBasic(Customizer.withDefaults()); // Habilita Basic Authentication (opcional)
 
         return http.build();
