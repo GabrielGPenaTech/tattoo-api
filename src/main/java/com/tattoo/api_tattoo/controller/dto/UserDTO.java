@@ -1,5 +1,6 @@
 package com.tattoo.api_tattoo.controller.dto;
 
+import com.tattoo.api_tattoo.utils.custonValidation.password.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,7 +23,7 @@ public class UserDTO {
 
     @NotBlank(message = "Password cannot be blank")
     @Size(min = 6, message = "Password must have at least 6 characters")
+    @ValidPassword
     private String password;
 
-    // Getters and Setters
 }

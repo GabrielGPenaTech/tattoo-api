@@ -5,6 +5,7 @@ import com.tattoo.api_tattoo.domain.model.User;
 import com.tattoo.api_tattoo.domain.repository.UserRepository;
 import com.tattoo.api_tattoo.service.UserService;
 import com.tattoo.api_tattoo.service.exception.BusinessException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +14,12 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -33,9 +37,11 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = new User();
+        var passwordEncoded = passwordEncoder.encode(userDTO.getPassword());
+
         user.setEmail(userDTO.getEmail());
         user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoded);
 
         return userRepository.save(user);
     }
@@ -57,6 +63,11 @@ public class UserServiceImpl implements UserService {
 
         if(existUsername) {
             throw new BusinessException("Username exists");
+        }
+
+        if (user.getPassword() != null) {
+            var passwordEncoded = passwordEncoder.encode(user.getPassword());
+            user.setPassword(passwordEncoded);
         }
 
         userModel.setUsername(user.getUsername());
