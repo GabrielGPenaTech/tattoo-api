@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface UserService {
 
-    User save(UserDTO userDTO);
-    User findById(String id);
-    User update(String id, User user);
-    List<User> findAll();
+    UserDTO save(UserDTO userDTO);
+    UserDTO findById(String id);
+    UserDTO update(String id, UserDTO userDTO);
+    List<UserDTO> findAll();
     void delete(String id);
 
 }

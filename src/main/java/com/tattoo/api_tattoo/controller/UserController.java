@@ -1,11 +1,9 @@
 package com.tattoo.api_tattoo.controller;
 
 import com.tattoo.api_tattoo.controller.dto.UserDTO;
-import com.tattoo.api_tattoo.domain.model.User;
 import com.tattoo.api_tattoo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,20 +20,20 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
-        User userModel = userService.save(userDTO);
+        UserDTO userResponse = userService.save(userDTO);
 
-        return ResponseEntity.ok(userModel);
+        return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.findAll();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> usersResponse = userService.findAll();
+        return ResponseEntity.ok(usersResponse);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
-        User user = userService.findById(id);
+    public ResponseEntity<UserDTO> getUserById(@PathVariable String id) {
+        UserDTO user = userService.findById(id);
 
         if (user != null) {
             return ResponseEntity.ok(user);
@@ -45,8 +43,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User user) {
-        User updatedUser = userService.update(id, user);
+    public ResponseEntity<UserDTO> updateUser(@PathVariable String id, @RequestBody UserDTO userDTO) {
+        UserDTO updatedUser = userService.update(id, userDTO);
 
         if (updatedUser != null) {
             return ResponseEntity.ok(updatedUser);

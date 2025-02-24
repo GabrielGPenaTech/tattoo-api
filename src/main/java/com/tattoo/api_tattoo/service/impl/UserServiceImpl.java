@@ -5,6 +5,9 @@ import com.tattoo.api_tattoo.domain.model.User;
 import com.tattoo.api_tattoo.domain.repository.UserRepository;
 import com.tattoo.api_tattoo.service.UserService;
 import com.tattoo.api_tattoo.service.exception.BusinessException;
+import com.tattoo.api_tattoo.service.mapper.UserMapper;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +18,18 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder
-    ) {
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
+                           UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public User save(UserDTO userDTO) {
+    public UserDTO save(UserDTO userDTO) {
         var userEmailExists = userRepository.existsByEmail(userDTO.getEmail());
 
         if(userEmailExists) {
@@ -36,52 +42,58 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("Username already in use");
         }
 
-        User user = new User();
         var passwordEncoded = passwordEncoder.encode(userDTO.getPassword());
 
-        user.setEmail(userDTO.getEmail());
-        user.setUsername(userDTO.getUsername());
+        User user = userMapper.toEntity(userDTO);
         user.setPassword(passwordEncoded);
+        userRepository.save(user);
 
-        return userRepository.save(user);
+        return userMapper.toResponseDTO(user);
     }
 
     @Override
-    public User findById(String id) {
-        return userRepository.findById(id);
+    public UserDTO findById(String id) {
+        User user = userRepository.findById(id);
+
+        if (user == null) {
+            throw new BusinessException("User not found");
+        }
+
+        return userMapper.toResponseDTO(user);
     }
 
     @Override
-    public User update(String id, User user) {
+    public UserDTO update(String id, UserDTO userDTO) {
         User userModel = userRepository.findById(id);
 
         if (userModel == null) {
             throw new BusinessException("User not found");
         }
 
-        var existUsername = userRepository.existsByUsername(user.getUsername());
+        if (userDTO.getUsername() != null && !userModel.getUsername().equals(userDTO.getUsername())) {
+            var existsByUsername = userRepository.existsByUsername(userDTO.getUsername());
 
-        if(existUsername) {
-            throw new BusinessException("Username exists");
+            if (existsByUsername) {
+                throw new BusinessException("Username already exists");
+            }
         }
 
-        if (user.getPassword() != null) {
-            var passwordEncoded = passwordEncoder.encode(user.getPassword());
-            user.setPassword(passwordEncoded);
+
+        if (userDTO.getPassword() != null) {
+            var passwordEncoded = passwordEncoder.encode(userDTO.getPassword());
+            userDTO.setPassword(passwordEncoded);
         }
 
-        userModel.setUsername(user.getUsername());
-        userModel.setPassword(user.getPassword());
-        userModel.setBiography(user.getBiography());
-        userModel.setBirthDate(user.getBirthDate());
-        userModel.setGender(user.getGender());
-        userModel.setProfilePicture(user.getProfilePicture());
-        return userRepository.save(userModel);
+        User user = userMapper.toEntity(userDTO);
+        userRepository.save(user);
+
+        return userMapper.toResponseDTO(user);
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserDTO> findAll() {
+        List<User> users = userRepository.findAll();
+        return users.stream().map(userMapper::toResponseDTO).toList();
     }
 
     @Override
@@ -92,6 +104,6 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("User not found");
         }
 
-        userRepository.save(user);
+        userRepository.delete(user);
     }
 }
